@@ -77,6 +77,27 @@ public interface ClickMobsConfig {
                             Whether dispensers can dispense picked up mobs.
                             """);
 
+    public static final ConfigOption<Boolean> ONLY_FRIENDLY_MOBS =
+            CONFIG.optionOf("only_friendly_mobs", false)
+                    .header("""
+                            ---------------------------------------------------------
+                            Additional pickup restrictions
+                            ---------------------------------------------------------
+                            """)
+                    .description("""
+                            If enabled, you can only pick up friendly (non-hostile) mobs.
+                            When enabled, this will automatically block hostile mobs like creepers, zombies, etc.
+                            Note: This option works independently from the whitelist/blacklist.
+                            """)
+                    .appendDefaultValue();
+
+    public static final ConfigOption<Boolean> REQUIRE_EMPTY_HAND =
+            CONFIG.optionOf("require_empty_hand", false)
+                    .description("""
+                            If enabled, you can only pick up mobs when your hand is completely empty.
+                            When enabled, this overrides the blacklist_items_in_hand setting.
+                            """)
+                    .appendDefaultValue();
     ConfigOption<List<String>> BLACKLISTED_ITEMS_IN_HAND =
             CONFIG.option("blacklisted_items_in_hand", List.of("lead", "saddle"))
                     .listOf(String.class)
