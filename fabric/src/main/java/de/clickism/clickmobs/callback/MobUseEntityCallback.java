@@ -7,14 +7,15 @@
 package de.clickism.clickmobs.callback;
 
 import de.clickism.clickmobs.ClickMobs;
+import de.clickism.clickmobs.ClickMobsConfig;
 import de.clickism.clickmobs.predicate.MobList;
 import de.clickism.clickmobs.mob.PickupHandler;
-import de.clickism.clickmobs.predicate.MobListParser;
 import de.clickism.clickmobs.util.MessageType;
 import de.clickism.clickmobs.util.Utils;
 import de.clickism.clickmobs.util.VersionHelper;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.HostileEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -27,18 +28,14 @@ import net.minecraft.village.VillagerDataContainer;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import static de.clickism.clickmobs.ClickMobsConfig.BLACKLISTED_MOBS;
-import static de.clickism.clickmobs.ClickMobsConfig.WHITELISTED_MOBS;
-
 public class MobUseEntityCallback implements UseEntityCallback {
 
-    private final MobListParser parser = new MobListParser();
-    private MobList whitelistedMobs;
-    private MobList blacklistedMobs;
+    private final MobList whitelistedMobs;
+    private final MobList blacklistedMobs;
 
-    public MobUseEntityCallback() {
-        WHITELISTED_MOBS.onChange(list -> this.whitelistedMobs = parser.parseMobList(list));
-        BLACKLISTED_MOBS.onChange(list -> this.blacklistedMobs = parser.parseMobList(list));
+    public MobUseEntityCallback(MobList whitelistedMobs, MobList blacklistedMobs) {
+        this.whitelistedMobs = whitelistedMobs;
+        this.blacklistedMobs = blacklistedMobs;
     }
 
     @Override
@@ -56,10 +53,21 @@ public class MobUseEntityCallback implements UseEntityCallback {
     }
 
     private ActionResult handlePickup(PlayerEntity player, LivingEntity entity) {
-        Item item = VersionHelper.getSelectedStack(player.getInventory()).getItem();
-        if (PickupHandler.isBlacklistedItemInHand(item)) {
-            return ActionResult.PASS;
+        // Check if require_empty_hand is enabled
+        if (ClickMobsConfig.REQUIRE_EMPTY_HAND.get()) {
+            ItemStack handStack = VersionHelper.getSelectedStack(player.getInventory());
+            if (!handStack.isEmpty()) {
+                MessageType.FAIL.sendActionbar(player, Text.literal("Your hand must be empty to pick up this mob"));
+                return ActionResult.PASS;
+            }
+        } else {
+            // Check normal item blacklist
+            Item item = VersionHelper.getSelectedStack(player.getInventory()).getItem();
+            if (PickupHandler.isBlacklistedItemInHand(item)) {
+                return ActionResult.PASS;
+            }
         }
+        
         if (!canBePickedUp(entity)) {
             MessageType.FAIL.sendActionbar(player, Text.literal("You can't pick up this mob"));
             return ActionResult.PASS;
@@ -71,6 +79,13 @@ public class MobUseEntityCallback implements UseEntityCallback {
     }
 
     public boolean canBePickedUp(LivingEntity entity) {
+        // Check friendly-only restriction
+        if (ClickMobsConfig.ONLY_FRIENDLY_MOBS.get()) {
+            if (entity instanceof HostileEntity) {
+                return false;
+            }
+        }
+        
         if (whitelistedMobs.contains(entity)) {
             return true;
         }
