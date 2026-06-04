@@ -25,11 +25,7 @@ stonecutter {
                     .buildscript = "build.$it.gradle.kts"
             }
         }
-        version("1.21.11", "fabric", "neoforge")
-        version("1.21.1", "fabric", "neoforge")
-        listOf("1.21.10", "1.21.8", "1.21.5", "1.21.4", "1.20.1").forEach {
-            version(it, "fabric")
-        }
-        vcsVersion = "1.21.11-fabric"
+        version("1.21.1", "neoforge")
+        vcsVersion = "1.21.1-neoforge"
     }
 }
