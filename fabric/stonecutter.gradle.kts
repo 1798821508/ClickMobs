@@ -1,4 +1,1 @@
-plugins {
-    id("dev.kikugie.stonecutter")
-}
-stonecutter active "1.21.11" /* [SC] DO NOT EDIT */
+// Stonecutter configuration file (not used in direct build)
