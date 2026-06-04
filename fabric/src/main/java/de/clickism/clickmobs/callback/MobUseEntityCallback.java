@@ -15,7 +15,6 @@ import de.clickism.clickmobs.util.Utils;
 import de.clickism.clickmobs.util.VersionHelper;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.HostileEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -81,7 +80,17 @@ public class MobUseEntityCallback implements UseEntityCallback {
     public boolean canBePickedUp(LivingEntity entity) {
         // Check friendly-only restriction
         if (ClickMobsConfig.ONLY_FRIENDLY_MOBS.get()) {
-            if (entity instanceof HostileEntity) {
+            // Check if entity is hostile by checking common hostile entity types
+            String entityType = entity.getType().toString().toLowerCase();
+            if (entityType.contains("creeper") || entityType.contains("zombie") || 
+                entityType.contains("skeleton") || entityType.contains("spider") ||
+                entityType.contains("enderman") || entityType.contains("wither") ||
+                entityType.contains("blaze") || entityType.contains("ghast") ||
+                entityType.contains("piglin") || entityType.contains("hoglin") ||
+                entityType.contains("drowned") || entityType.contains("husk") ||
+                entityType.contains("stray") || entityType.contains("witch") ||
+                entityType.contains("phantom") || entityType.contains("guardian") ||
+                entityType.contains("elder_guardian") || entityType.contains("dragon")) {
                 return false;
             }
         }
