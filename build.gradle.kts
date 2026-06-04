@@ -1,1 +1,1 @@
-// Root build script - Stonecutter automatically loads subproject build scripts
+// Root project - no plugins needed
